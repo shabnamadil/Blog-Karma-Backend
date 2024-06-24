@@ -19,12 +19,23 @@ class Base(models.Model):
             DRAFT = 'DF', 'Draft'
             PUBLİSHED = 'PB', 'Published'
     
-    created_at = models.DateTimeField('Əlavə edilmə tarixi', auto_now_add=True)
-    updated_at = models.DateTimeField('Yenilənmə tarixi', auto_now=True)
-    published_at = models.DateTimeField('Nəşr tarixi', default=timezone.now)
-    status = models.CharField(max_length=2,
-                              choices=Status.choices,
-                              default=Status.DRAFT)
+    created_at = models.DateTimeField(
+        'Əlavə edilmə tarixi', 
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        'Yenilənmə tarixi', 
+        auto_now=True
+    )
+    published_at = models.DateTimeField(
+        'Nəşr tarixi', 
+        default=timezone.now
+    )
+    status = models.CharField(
+        max_length=2,
+        choices=Status.choices,
+        default=Status.DRAFT
+    )
 
     class Meta:
         abstract=True
@@ -71,23 +82,28 @@ class Blog(Base):
     blog_title = models.CharField(('Məqalə başlığı'), max_length=150)
     blog_content = RichTextUploadingField('Məqalə mətni')
     blog_image = models.ImageField('Cover foto', upload_to='blogs/')
-    category = models.ManyToManyField(Category, related_name='blogs', verbose_name='Kateqoriya')
+    category = models.ManyToManyField(
+        Category, 
+        related_name='blogs', 
+        verbose_name='Kateqoriya'
+    )
     slug=models.SlugField(
-                        ("Link adı"),
-                        null=True, blank=True,
-                        help_text="Bu qismi boş buraxın. Avtomatik doldurulacaq.",
-                        max_length=500    
-                    )
+        ("Link adı"),
+        null=True, blank=True,
+        help_text="Bu qismi boş buraxın. Avtomatik doldurulacaq.",
+        max_length=500    
+    )
     author = models.ForeignKey(
-                                User, 
-                                on_delete=models.CASCADE, 
-                                related_name='blogs'
-                            )
+        User, 
+        on_delete=models.CASCADE,
+        related_name='blogs',
+        verbose_name='Müəllif'
+    )
     viewed_ips = models.ManyToManyField(
-                                        IP, related_name="blogs", 
-                                        verbose_name='Məqalənin görüntüləndiyi IP ünvanları',
-                                        editable=False
-                                    )
+        IP, related_name="blogs", 
+        verbose_name='Məqalənin görüntüləndiyi IP ünvanları',
+        editable=False
+    )
     objects = models.Manager()
     published = PublishedBlogManager()
 
@@ -110,14 +126,22 @@ class Blog(Base):
 class Comment(Base):
     comment_text = models.TextField('Bloq rəyi', max_length=250)
     comment_slug = models.SlugField(
-                            ("Link adı"),
-                            null=True, blank=True,
-                            help_text="Bu qismi boş buraxın. Avtomatik doldurulacaq.",
-                            max_length=500)  
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='blog_comments')
-    comment_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_comments')
-    liked = models.ManyToManyField(User, related_name='news_liked_comments', verbose_name='Bəyənənlər', editable=False)
-    disliked = models.ManyToManyField(User, related_name='news_disliked_comments', verbose_name='Bəyənməyənlər', editable=False)
+        ("Link adı"),
+        null=True, blank=True,
+        help_text="Bu qismi boş buraxın. Avtomatik doldurulacaq.",
+        max_length=500
+    )  
+    blog = models.ForeignKey(
+        Blog, 
+        on_delete=models.CASCADE, 
+        related_name='blog_comments'
+    )
+    comment_author = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='blog_comments',
+        verbose_name='Rəy müəllifi'
+    )
     objects = models.Manager()
     published = PublishedBlogCommentManager()
 
