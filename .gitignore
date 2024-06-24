@@ -1,0 +1,14 @@
+venv/
+.venv
+.env
+env/
+CyberSocOps/db.sqlite3
+/media/
+/migrations/
+/__pycache__/
+**/__pycache__
+/__pycache__
+**/media/**
+**/migrations/**
+**/__pycache__/**
+.vscode/
