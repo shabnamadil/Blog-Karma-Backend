@@ -4,14 +4,10 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 
 from .models import (
-    IP, 
     Blog, 
     Category, 
     Comment
 )
-
-admin.site.register(Category)
-admin.site.register(Comment)
 
 
 @admin.action(description="Mark selected items DRAFT")
@@ -59,7 +55,7 @@ class BlogAdmin(admin.ModelAdmin):
             obj.author.get_full_name()
         )
         return mark_safe(link)
-    display_blog_author.short_description = 'Bloq müəllifi'
+    display_blog_author.short_description = 'Müəllif'
 
     def display_blog_img(self, obj):
         image = obj.blog_image.url
@@ -70,4 +66,56 @@ class BlogAdmin(admin.ModelAdmin):
 
     def display_blog_categories(self, obj):
         return ", ".join(category.category_name for category in obj.category.all())
-    display_blog_categories.short_description = 'Category'
+    display_blog_categories.short_description = 'Kateqoriya'
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'get_comment', 'display_blog',
+        'display_comment_author', 
+        'status', 'created_date',
+    )
+    list_filter = (
+        'published_at', 'status'
+    )
+    search_fields = (
+        'comment_text',
+    )
+    ordering = ('-updated_at', 'comment_text')
+    date_hierarchy = 'published_at'
+    list_per_page = 20
+    actions =(make_draft, make_published)
+    readonly_fields = ('comment_author', 'comment_slug')
+    autocomplete_fields = ('blog', )
+    exclude = ('published_at', )
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.comment_author = request.user
+        super().save_model(request, obj, form, change)
+
+    def display_blog(self, obj):
+        url = reverse("admin:blogs_blog_change", args=[obj.blog.id])
+        link = '<a style="color: blue;" href="%s">%s</a>' % (
+            url, 
+            obj.blog.blog_title
+        )
+        return mark_safe(link)
+    display_blog.short_description = 'Bloq'
+
+    def display_comment_author(self, obj):
+        url = reverse("admin:auth_user_change", args=[obj.comment_author.id])
+        link = '<a style="color: red;" href="%s">%s</a>' % (
+            url, 
+            obj.comment_author.get_full_name()
+        )
+        return mark_safe(link)
+    display_comment_author.short_description = 'Müəllif'
+
+    def get_comment(self, obj):
+        return obj.truncated_comment
+    get_comment.short_description = 'Comment'
+
+
+admin.site.register(Category)

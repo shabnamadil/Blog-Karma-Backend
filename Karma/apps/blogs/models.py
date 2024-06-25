@@ -34,7 +34,7 @@ class Base(models.Model):
     status = models.CharField(
         max_length=2,
         choices=Status.choices,
-        default=Status.DRAFT
+        default=Status.PUBLİSHED
     )
 
     class Meta:
@@ -152,4 +152,19 @@ class Comment(Base):
           indexes = [
             models.Index(fields=['-published_at'])
         ]
+            
+    @property
+    def truncated_comment(self):
+        max_words = 3
+        words = self.comment_text.split()
+        truncated_words = words[:max_words]
+        truncated_content = ' '.join(truncated_words)
+
+        if len(words) > max_words:
+            truncated_content += ' ...'  
+
+        return truncated_content
+
+    def __str__(self) -> str:
+        return self.truncated_comment
 
