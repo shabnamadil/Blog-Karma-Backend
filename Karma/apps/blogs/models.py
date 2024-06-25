@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.text import slugify
 
 from ckeditor_uploader.fields import RichTextUploadingField
 
@@ -79,9 +80,10 @@ class Category(models.Model):
 
 
 class Blog(Base):
-    blog_title = models.CharField(('Məqalə başlığı'), max_length=150)
+    blog_title = models.CharField(('Məqalə başlığı'), max_length=100)
     blog_content = RichTextUploadingField('Məqalə mətni')
     blog_image = models.ImageField('Cover foto', upload_to='blogs/')
+    liked_count = models.IntegerField(default=0)
     category = models.ManyToManyField(
         Category, 
         related_name='blogs', 
@@ -121,6 +123,11 @@ class Blog(Base):
     
     def __str__(self) -> str:
         return self.blog_title
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug=slugify(self.blog_title)
+        super().save(*args, **kwargs)
     
 
 class Comment(Base):

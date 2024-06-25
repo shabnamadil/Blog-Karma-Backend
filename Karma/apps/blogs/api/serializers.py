@@ -72,6 +72,8 @@ class BlogListSerializer(serializers.ModelSerializer):
             'category',
             'author',
             'comment_count',
+            'liked_count',
+            'slug',
             'blog_comments',
             'published_date'
         )
