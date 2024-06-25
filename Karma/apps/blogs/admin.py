@@ -25,6 +25,7 @@ class BlogAdmin(admin.ModelAdmin):
         'blog_title', 'display_blog_img',
         'display_blog_author', 'view_count',
         'display_blog_categories', 
+        'show_comments_count',
         'status', 'created_date',
     )
     list_filter = (
@@ -67,6 +68,11 @@ class BlogAdmin(admin.ModelAdmin):
     def display_blog_categories(self, obj):
         return ", ".join(category.category_name for category in obj.category.all())
     display_blog_categories.short_description = 'Kateqoriya'
+
+    def show_comments_count(self, obj):
+        result = Comment.objects.filter(blog=obj).count()
+        return result
+    show_comments_count.short_description = 'RƏYLƏRİN SAYI'
 
 
 @admin.register(Comment)
