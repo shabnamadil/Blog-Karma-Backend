@@ -12,7 +12,6 @@ from rest_framework.permissions import (
 from rest_framework.generics import (
     ListAPIView, 
     CreateAPIView,
-    ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework_simplejwt.token_blacklist.models import (
@@ -45,6 +44,7 @@ class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 class UserLoginAPIView(APIView):
     serializer_class = UserLoginSerializer
+    queryset = User.objects.filter(is_active=True)
 
     def post(self,request): 
         email = request.data.get('email', None)
@@ -67,7 +67,7 @@ class UserLoginAPIView(APIView):
 
 class RegisterAPIView(CreateAPIView):
     serializer_class = RegisterSerializer
-    queryset = User.objects.filter(is_active=True)
+    queryset = User.objects.all()
 
 
 class LogoutAPIView(APIView):

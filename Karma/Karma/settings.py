@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     # THIRD PARTY APPS
     'ckeditor',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders'
 
 ]

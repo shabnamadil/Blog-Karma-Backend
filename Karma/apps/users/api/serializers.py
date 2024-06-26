@@ -52,7 +52,8 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True,  validators=[validate_password])
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+    password_confirm = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
@@ -62,27 +63,29 @@ class RegisterSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'email',
-            'password'
+            'password',
+            'password_confirm',
         )
 
     def validate(self, attrs):
-        password = attrs['password']
-        if 'password_confirm' in self.initial_data and password != self.initial_data['password_confirm']:
-            raise serializers.ValidationError("Passwords do not match")
-        if 'password_confirm' not in self.initial_data:
-            raise serializers.ValidationError('it is missed password_confirm')
+        password = attrs.get('password')
+        password_confirm = attrs.get('password_confirm')
+        if password != password_confirm:
+            raise serializers.ValidationError({"password": "Passwords do not match"})
         return attrs
-    
+
     def create(self, validated_data):
+        validated_data.pop('password_confirm')  # Remove password_confirm from validated_data
         user = User(
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             email=validated_data['email']
         )
         user.set_password(validated_data['password'])
-        user.is_active = False
+        user.is_active = False  # Deactivate account until it is confirmed
+        user.save()
         current_site = Site.objects.get_current()
-        subject = 'Activate Your CyberSocOps Account'
+        subject = 'Activate Your Karma Account'
         message = render_to_string('account_activation_email.html', {
             'user': user,
             'domain': current_site.domain,
@@ -90,7 +93,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             'token': account_activation_token.make_token(user),
         })
         user.email_user(subject, message)
-        user.save()
         return user
 
 

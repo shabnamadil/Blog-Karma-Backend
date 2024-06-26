@@ -18,7 +18,7 @@ def notify_super_user(sender, instance, created, *args, **kwargs):
         )
         current_site = Site.objects.get_current()
         for super_user in super_users:
-            subject = 'New User Registration on CyberSocOps!!!'
+            subject = 'New User Registration on Karma website!!!'
             message = render_to_string('account_register.html', {
                 'super_user': super_user,
                 'domain': current_site.domain,
